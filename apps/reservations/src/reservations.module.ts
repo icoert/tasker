@@ -7,10 +7,11 @@ import {
   ReservationDocument,
   ReservationSchema,
 } from './reservations/models/reservation.schema';
+import { LoggerModule } from '@app/common';
 
 /**
  * ReservationsModule is responsible for handling reservation-related functionality.
- * It connects the controller, service, and repository, and manages schema registration.
+ * It integrates database access, logging, and business logic into a single module.
  */
 @Module({
   imports: [
@@ -18,8 +19,9 @@ import {
     DatabaseModule.forFeature([
       { name: ReservationDocument.name, schema: ReservationSchema },
     ]),
+    LoggerModule,
   ],
-  controllers: [ReservationsController],
+  controllers: [ReservationsController], // Defines the controller for handling reservation-related routes
   providers: [
     ReservationsService, // Provides business logic for reservations
     ReservationsRepository, // Provides database access for reservation operations
