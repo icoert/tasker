@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AuthModule } from './auth.module';
 import { ValidationPipe } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
+import { ConfigService } from '@nestjs/config';
 
 /**
  * The `bootstrap` function initializes and starts the NestJS authentication service application.
@@ -25,10 +26,11 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
 
   /**
-   * Start the application and listen on the specified port.
-   * - `process.env.port`: Retrieves the port from environment variables.
-   * - Defaults to `3001` if no port is specified.
+   * Starts the application and listens on the specified port.
+   * - Retrieves the port from the configuration service (`ConfigService`), which manages environment variables.
+   * - Fallback: Defaults to port `3001` if no port is defined in the environment variables.
    */
-  await app.listen(process.env.port ?? 3001);
+  const configService = app.get(ConfigService);
+  await app.listen(configService.get('PORT') ?? 3001);
 }
 bootstrap();

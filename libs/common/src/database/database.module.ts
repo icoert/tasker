@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ModelDefinition, MongooseModule } from '@nestjs/mongoose';
-import { ConfigModule } from '../config/config.module';
 
 /**
  * DatabaseModule handles the database connection and provides a way to define and use Mongoose models.
@@ -10,7 +9,6 @@ import { ConfigModule } from '../config/config.module';
   imports: [
     // Asynchronous database connection setup using Mongoose and ConfigService
     MongooseModule.forRootAsync({
-      imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         /**
          * Retrieves the MongoDB URI from the configuration service.
