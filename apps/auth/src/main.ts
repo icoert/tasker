@@ -27,8 +27,8 @@ async function bootstrap() {
   /**
    * Start the application and listen on the specified port.
    * - `process.env.port`: Retrieves the port from environment variables.
-   * - Defaults to `3000` if no port is specified.
+   * - Defaults to `3001` if no port is specified.
    */
-  await app.listen(process.env.port ?? 3000);
+  await app.listen(process.env.port ?? 3001);
 }
 bootstrap();

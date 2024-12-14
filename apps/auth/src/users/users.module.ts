@@ -15,7 +15,6 @@ import { UsersRepository } from './users.repository';
     DatabaseModule.forFeature([
       { name: UserDocument.name, schema: UserSchema },
     ]),
-    LoggerModule,
   ],
   controllers: [UsersController], // Defines the controller for handling user-related HTTP routes
   providers: [
