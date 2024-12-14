@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { LoggerModule } from '@app/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
+import { LocalStrategy } from './strategies/local.strategy';
 
 /**
  * The AuthModule handles all functionality related to user authentication.
@@ -58,6 +59,7 @@ import * as Joi from 'joi';
   ],
   providers: [
     AuthService, // Implements the business logic for authentication, such as validating users and issuing tokens.
+    LocalStrategy,
   ],
 })
 export class AuthModule {}

@@ -19,7 +19,8 @@ import { UsersRepository } from './users.repository';
   controllers: [UsersController], // Defines the controller for handling user-related HTTP routes
   providers: [
     UsersService, // Provides business logic for user operations
-    UsersRepository,
-  ], // Handles database interactions for the User schema
+    UsersRepository, // Handles database interactions for the User schema
+  ],
+  exports: [UsersService], // Makes UsersService available to other modules
 })
 export class UsersModule {}
