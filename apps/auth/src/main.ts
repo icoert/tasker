@@ -3,12 +3,18 @@ import { AuthModule } from './auth.module';
 import { ValidationPipe } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
 import { ConfigService } from '@nestjs/config';
+import * as cookieParser from 'cookie-parser';
 
 /**
  * The `bootstrap` function initializes and starts the NestJS authentication service application.
  */
 async function bootstrap() {
   const app = await NestFactory.create(AuthModule);
+
+  /**
+   * Integrates the `cookie-parser` middleware into the application.
+   * */
+  app.use(cookieParser());
 
   /**
    * Use global pipes for validation.

@@ -1,7 +1,12 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersRepository } from './users.repository';
+import { GetUserDto } from './dto/get-user.dto';
 
 /**
  * The UsersService handles the business logic for managing users.
@@ -29,10 +34,32 @@ export class UsersService {
    *   - The returned object contains the user's details, with the hashed password stored in the database.
    */
   async create(createUserDto: CreateUserDto): Promise<any> {
+    // Ensure the email in the DTO does not already exist in the database
+    await this.validateCreateUserDto(createUserDto);
+
     return this.userRepository.create({
       ...createUserDto,
       password: await bcrypt.hash(createUserDto.password, 10),
     });
+  }
+
+  /**
+   * Validates the `CreateUserDto` to ensure the email is not already registered.
+   * - Checks the database for an existing user with the same email.
+   *
+   * @param {CreateUserDto} createUserDto - The Data Transfer Object containing the user's details.
+   *   - `email`: The user's email address to be validated.
+   *
+   * @throws {UnprocessableEntityException} If the email already exists in the database.
+   */
+  private async validateCreateUserDto(createUserDto: CreateUserDto) {
+    try {
+      await this.userRepository.findOne({ email: createUserDto.email });
+    } catch (err) {
+      return;
+    }
+
+    throw new UnprocessableEntityException('Email already exists!');
   }
 
   /**
@@ -59,5 +86,19 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  /**
+   * Retrieves a user from the database based on the provided criteria.
+   * - Delegates the database query to the `userRepository`.
+   * - Returns the first user document that matches the criteria specified in the DTO.
+   *
+   * @param {GetUserDto} getUserDto - The Data Transfer Object containing the query criteria for retrieving the user.
+   *   - Can include fields such as `email` or `_id` depending on the implementation of `GetUserDto`.
+   *
+   * @returns {Promise<UserDocument | null>} A promise that resolves to the user document if found, or `null` if no user matches the criteria.
+   */
+  async getUser(getUserDto: GetUserDto) {
+    return this.userRepository.findOne(getUserDto);
   }
 }

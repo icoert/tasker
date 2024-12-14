@@ -3,6 +3,7 @@ import { UserDocument } from './users/models/user.schema';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { TokenPayload } from './interfaces/token-payload.interface';
 
 /**
  * AuthService handles the business logic for user authentication.
@@ -16,13 +17,17 @@ export class AuthService {
   ) {}
 
   /**
-   * Handles user login by generating a JWT and setting it in an HTTP-only cookie.
+   * Handles user login by generating a JSON Web Token (JWT) and setting it in an HTTP-only cookie.
+   * - The JWT contains a payload with the authenticated user's ID.
+   * - The cookie is set with an expiration time derived from the `JWT_EXPIRATION` configuration.
    *
-   * @param user - The authenticated user's document.
-   * @param response - The HTTP response object for setting the cookie.
+   * @param {UserDocument} user - The authenticated user's document.
+   *   - `_id`: The unique identifier of the user, converted to a string for the token payload.
+   * @param {Response} response - The HTTP response object used to set the cookie.
+   *   - `response.cookie`: Sets the cookie with the JWT for client-side storage.
    */
   async login(user: UserDocument, response: Response) {
-    const tokenPayload = {
+    const tokenPayload: TokenPayload = {
       userId: user._id.toHexString(),
     };
 

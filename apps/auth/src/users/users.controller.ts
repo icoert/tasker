@@ -1,6 +1,9 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
+import { CurrentUser } from '../curent-user.decorator';
+import { UserDocument } from './models/user.schema';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 /**
  * The UsersController handles HTTP requests related to user operations.
@@ -23,5 +26,18 @@ export class UsersController {
   @Post()
   async createUser(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
+  }
+
+  /**
+   * Handles a GET request to retrieve the details of the authenticated user.
+   * - Protects the route with the `JwtAuthGuard` to ensure only authenticated users can access it.
+   * - Uses the `@CurrentUser` decorator to extract the authenticated user's details from the request.
+   *
+   * @returns {Promise<UserDocument>} The user document of the authenticated user.
+   */
+  @Get()
+  @UseGuards(JwtAuthGuard)
+  async getUser(@CurrentUser() user: UserDocument) {
+    return user;
   }
 }
