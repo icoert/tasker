@@ -4,12 +4,26 @@ import { ValidationPipe } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
 import { ConfigService } from '@nestjs/config';
 import * as cookieParser from 'cookie-parser';
+import { Transport } from '@nestjs/microservices';
 
 /**
  * The `bootstrap` function initializes and starts the NestJS authentication service application.
  */
 async function bootstrap() {
   const app = await NestFactory.create(AuthModule);
+
+  const configService = app.get(ConfigService);
+
+  /**
+   * Connects a new microservice to the NestJS application.
+   */
+  app.connectMicroservice({
+    transport: Transport.TCP,
+    options: {
+      host: '0.0.0.0',
+      port: configService.get('TCP_PORT'),
+    },
+  });
 
   /**
    * Integrates the `cookie-parser` middleware into the application.
@@ -31,12 +45,7 @@ async function bootstrap() {
    */
   app.useLogger(app.get(Logger));
 
-  /**
-   * Starts the application and listens on the specified port.
-   * - Retrieves the port from the configuration service (`ConfigService`), which manages environment variables.
-   * - Fallback: Defaults to port `3001` if no port is defined in the environment variables.
-   */
-  const configService = app.get(ConfigService);
+  await app.startAllMicroservices();
   await app.listen(configService.get('PORT') ?? 3001);
 }
 bootstrap();

@@ -1,9 +1,11 @@
 import { Controller, Get, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { CurrentUser } from './curent-user.decorator';
+import { CurrentUser } from '../../../libs/common/src/decorators/curent-user.decorator';
 import { UserDocument } from './users/models/user.schema';
 import { Response } from 'express';
+import { MessagePattern, Payload } from '@nestjs/microservices';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 /**
  * AuthController is responsible for handling authentication-related routes.
@@ -32,5 +34,21 @@ export class AuthController {
     await this.authService.login(user, response);
 
     response.send(user);
+  }
+
+  /**
+   * Handles the 'authenticate' message pattern for microservice communication.
+   * - Secures the route using the `JwtAuthGuard` to ensure only authenticated requests are processed.
+   * - Extracts and returns the authenticated user's details from the payload.
+   *
+   * @param {any} data - The payload of the incoming message.
+   *   - `data.user`: Contains the details of the authenticated user.
+   *
+   * @returns {Promise<any>} A promise resolving to the authenticated user's details.
+   */
+  @UseGuards(JwtAuthGuard)
+  @MessagePattern('authenticate')
+  async authenticate(@Payload() data: any) {
+    return data.user;
   }
 }

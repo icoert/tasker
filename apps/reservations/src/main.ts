@@ -3,6 +3,7 @@ import { ReservationsModule } from './reservations.module';
 import { ValidationPipe } from '@nestjs/common';
 import { Logger } from 'nestjs-pino';
 import { ConfigService } from '@nestjs/config';
+import * as cookieParser from 'cookie-parser';
 
 /**
  * The `bootstrap` function initializes and starts the NestJS application.
@@ -24,6 +25,8 @@ async function bootstrap() {
    * - Provides structured and high-performance logging for the application.
    */
   app.useLogger(app.get(Logger));
+
+  app.use(cookieParser());
 
   /**
    * Starts the application and listens on the specified port.

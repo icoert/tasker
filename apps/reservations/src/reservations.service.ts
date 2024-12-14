@@ -24,11 +24,11 @@ export class ReservationsService {
    * @param {CreateReservationDto} createReservationDto - The data for the new reservation.
    * @returns {Promise<any>} The created reservation.
    */
-  create(createReservationDto: CreateReservationDto) {
+  create(createReservationDto: CreateReservationDto, userId: string) {
     return this.reservationsRepository.create({
       ...createReservationDto,
       timestamp: new Date(),
-      userId: '123',
+      userId,
     });
   }
 

@@ -8,8 +8,10 @@ import {
   ReservationSchema,
 } from './reservations/models/reservation.schema';
 import { LoggerModule } from '@app/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import * as Joi from 'joi';
+import { AUTH_SERVICE } from '@app/common/constants/services';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 /**
  * ReservationsModule is responsible for handling reservation-related functionality.
@@ -34,6 +36,32 @@ import * as Joi from 'joi';
         PORT: Joi.number().required(),
       }),
     }),
+    /**
+     * Registers a microservice client in the application.
+     * - Configures the client to communicate with the `AUTH_SERVICE` using the TCP transport protocol.
+     *
+     * @param {string} name - The unique identifier for the microservice client.
+     *   - `AUTH_SERVICE`: Refers to the authentication service, defined as a constant.
+     * @param {Transport} transport - Specifies the transport protocol for communication.
+     *   - `Transport.TCP`: Uses TCP as the transport layer, providing reliable, connection-oriented communication.
+     *
+     * Usage:
+     * - This configuration allows the application to act as a client for the authentication microservice.
+     * - Enables sending messages and receiving responses from the `AUTH_SERVICE`.
+     */
+    ClientsModule.registerAsync([
+      {
+        name: AUTH_SERVICE,
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.TCP,
+          options: {
+            host: configService.get('AUTH_HOST'),
+            port: configService.get('AUTH_PORT'),
+          },
+        }),
+        inject: [ConfigService],
+      },
+    ]),
   ],
   controllers: [ReservationsController], // Defines the controller for handling reservation-related routes
   providers: [
