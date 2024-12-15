@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateReservationDto } from './reservations/dto/create-reservation.dto';
 import { UpdateReservationDto } from './reservations/dto/update-reservation.dto';
 import { ReservationsRepository } from './reservations.repository';
-import { PAYMENTS_SERVICE } from '@app/common';
+import { PAYMENTS_SERVICE, UserDto } from '@app/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { map, mergeMap, timestamp } from 'rxjs';
 
@@ -28,23 +28,30 @@ export class ReservationsService {
   ) {}
 
   /**
-   * Creates a new reservation and processes a payment for it.
-   * - Sends a message to the Payments Service to process the charge.
+   * Handles the creation of a new reservation and processes the associated payment.
+   * - Sends a charge request to the Payments Service with the reservation's charge details and the user's email.
    * - On successful payment, saves the reservation data to the database.
    *
-   * @param {CreateReservationDto} createReservationDto - The data for the new reservation, including:
+   * @param {CreateReservationDto} createReservationDto - The Data Transfer Object containing reservation details:
+   *   - `startDate`: The start date of the reservation.
+   *   - `endDate`: The end date of the reservation.
+   *   - `placeId`: The ID of the place being reserved.
    *   - `charge`: The charge details required for payment processing (e.g., card details, amount).
-   *   - Other reservation details (e.g., `startDate`, `endDate`, `placeId`, `invoiceId`).
-   * @param {string} userId - The unique identifier of the authenticated user making the reservation.
+   * @param {UserDto} user - The authenticated user's details, including:
+   *   - `email`: The user's email address.
+   *   - `_id`: The unique identifier of the user, used as `userId` in the reservation.
    *
    * @returns {Observable<any>} An observable that resolves to the created reservation.
-   *   - Includes reservation details stored in the database after successful payment processing.
+   *   - Includes reservation details such as start date, end date, place ID, invoice ID, timestamp, and user ID.
    *
    * @throws {Error} If the payment fails, the reservation is not created.
    */
-  async create(createReservationDto: CreateReservationDto, userId: string) {
+  async create(
+    createReservationDto: CreateReservationDto,
+    { email, _id: userId }: UserDto,
+  ) {
     return this.paymentsService
-      .send('create_charge', createReservationDto.charge)
+      .send('create_charge', { ...createReservationDto.charge, email })
       .pipe(
         map((res) => {
           return this.reservationsRepository.create({

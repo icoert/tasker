@@ -1,7 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { CreateChargeDto } from '../../../libs/common/src/dto/create-charge.dto';
+import { NOTIFICATIONS_SERVICE } from '@app/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { PaymentsCreateChargeDto } from './dto/payments-create-charge.dto';
 
 /**
  * The PaymentsService handles payment-related operations using the Stripe API.
@@ -15,7 +18,11 @@ export class PaymentsService {
    *
    * @param {ConfigService} configService - Provides access to the `STRIPE_SECRET_KEY`.
    */
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    @Inject(NOTIFICATIONS_SERVICE)
+    private readonly notificationService: ClientProxy,
+  ) {}
 
   /**
    * The Stripe instance initialized with the secret key and API version.
@@ -29,21 +36,23 @@ export class PaymentsService {
   );
 
   /**
-   * Creates a new charge using the Stripe API.
-   * - Creates a payment method for the provided card details.
+   * Handles the creation of a payment charge using the Stripe API and sends a notification email.
+   * - Creates a payment method using a test token (`tok_mastercard`).
    * - Creates and confirms a payment intent with the specified amount.
+   * - Sends an email notification via the notification service upon successful payment.
    *
-   * @param {CreateChargeDto} createChargeDto - The data transfer object containing payment details:
-   *   - `card`: The card details for processing the payment.
-   *     - Example: `{ number: '4242424242424242', exp_month: 12, exp_year: 2024, cvc: '123' }`.
+   * @param {PaymentsCreateChargeDto} createChargeDto - The data transfer object containing payment details:
+   *   - `card`: The card details for processing the payment (using a tokenized card for security).
    *   - `amount`: The amount to be charged, in USD.
+   *   - `email`: The user's email address for sending a notification.
    *
    * @returns {Promise<Stripe.PaymentIntent>} A promise resolving to the created payment intent.
    *   - Contains details of the payment, such as status, amount, and payment method.
    *
-   * @throws {Stripe.errors} If any error occurs during payment processing.
+   * @throws {Error} If an error occurs during payment processing.
+   *   - Logs the error details and throws a meaningful message.
    */
-  async createCharge({ card, amount }: CreateChargeDto) {
+  async createCharge({ card, amount, email }: PaymentsCreateChargeDto) {
     try {
       console.log('Creating payment method with amount:', amount);
 
@@ -63,6 +72,11 @@ export class PaymentsService {
         currency: 'usd',
       });
       console.log('Payment intent created:', paymentIntent.id);
+
+      this.notificationService.emit('notify_email', {
+        email,
+        text: `Your parment of $${amount} has completed successfully!`,
+      });
 
       // Return the successful payment intent
       return paymentIntent;

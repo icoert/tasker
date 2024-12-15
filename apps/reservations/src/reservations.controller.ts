@@ -35,8 +35,6 @@ export class ReservationsController {
    * @param {CreateReservationDto} createReservationDto - The Data Transfer Object containing the reservation details:
    *   - `startDate`: The start date of the reservation.
    *   - `endDate`: The end date of the reservation.
-   *   - `placeId`: The ID of the place being reserved.
-   *   - `invoiceId`: The ID of the associated invoice.
    * @param {UserDto} user - The authenticated user's details, extracted via the `@CurrentUser` decorator:
    *   - `userId`: The unique identifier of the authenticated user.
    * @returns {Promise<any>} A promise that resolves to the created reservation.
@@ -50,7 +48,7 @@ export class ReservationsController {
   ) {
     const _user = await this.reservationsService.create(
       createReservationDto,
-      user._id,
+      user,
     );
 
     return _user;
