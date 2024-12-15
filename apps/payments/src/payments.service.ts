@@ -75,7 +75,7 @@ export class PaymentsService {
 
       this.notificationService.emit('notify_email', {
         email,
-        text: `Your parment of $${amount} has completed successfully!`,
+        text: `Your payment of $${amount} has completed successfully!`,
       });
 
       // Return the successful payment intent
