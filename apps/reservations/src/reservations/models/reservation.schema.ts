@@ -20,9 +20,6 @@ export class ReservationDocument extends AbastractDocument {
   userId: string;
 
   @Prop()
-  placeId: string;
-
-  @Prop()
   invoiceId: string;
 }
 

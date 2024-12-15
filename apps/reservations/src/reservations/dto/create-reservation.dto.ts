@@ -1,5 +1,11 @@
 import { Type } from 'class-transformer';
-import { IsDate, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsDate,
+  IsDefined,
+  IsNotEmptyObject,
+  ValidateNested,
+} from 'class-validator';
+import { CreateChargeDto } from '@app/common';
 
 /**
  * CreateReservationDto is a Data Transfer Object (DTO) that defines the structure
@@ -27,20 +33,21 @@ export class CreateReservationDto {
   endDate: Date;
 
   /**
-   * The ID of the place being reserved.
-   * - Must be a non-empty string.
-   * @type {string}
+   * Represents the charge details required for payment processing.
+   * - The property is required and validated to ensure it is a non-empty object with a valid structure.
+   * - Must conform to the structure defined in the `CreateChargeDto` class.
+   *
+   * Decorators:
+   * - `@IsDefined()`: Ensures that the property is defined in the input object.
+   * - `@IsNotEmptyObject()`: Ensures that the property is not an empty object (e.g., `{}`).
+   * - `@ValidateNested()`: Validates the nested structure of the `charge` property based on the `CreateChargeDto` class.
+   * - `@Type(() => CreateChargeDto)`: Validates the nested structure of the `charge` property based on the `CreateChargeDto` class.
+   *
+   * @type {CreateChargeDto}
    */
-  @IsString()
-  @IsNotEmpty()
-  placeId: string;
-
-  /**
-   * The ID of the invoice associated with the reservation.
-   * - Must be a non-empty string.
-   * @type {string}
-   */
-  @IsString()
-  @IsNotEmpty()
-  invoiceId: string;
+  @IsDefined()
+  @IsNotEmptyObject()
+  @ValidateNested()
+  @Type(() => CreateChargeDto)
+  charge: CreateChargeDto;
 }

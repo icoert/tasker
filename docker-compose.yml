@@ -25,6 +25,19 @@ services:
       - '3001:3001'
     volumes:
       - .:/usr/src/app
+  payments:
+    build:
+      context: .
+      dockerfile: ./apps/payments/Dockerfile
+      target: development
+    container_name: tasker-payments
+    command: npm run start:dev payments
+    env_file:
+      - ./apps/payments/.env
+    ports:
+      - '3003:3003'
+    volumes:
+      - .:/usr/src/app
   mongodb:
     image: mongo
     container_name: tasker-mongodb

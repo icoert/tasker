@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { AUTH_SERVICE } from '@app/common/constants/services';
-import { map, Observable, tap } from 'rxjs';
+import { catchError, map, Observable, of, tap } from 'rxjs';
 import { UserDto } from '../dto';
 
 /**
@@ -54,6 +54,7 @@ export class JwtAuthGuard implements CanActivate {
         }),
         // Map the response to `true` if the JWT is valid
         map(() => true),
+        catchError(() => of(false)),
       );
   }
 }
