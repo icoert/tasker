@@ -1,0 +1,17 @@
+{
+  "name": "@tasker/payments",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Silviu Vijiala",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "stripe": "17.5.0"
+  }
+}
